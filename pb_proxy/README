@@ -1,0 +1,18 @@
+Description:
+pbproxy helps adds an extra layer of encryption to connections towards TCP services. If a client wants to connect to a service, that service may still be vulnerable to a zero-day attack. What pbproxy does is encrypt and decrypt all communications between a client and a service such that all communications to the service go throughpbproxy
+
+How to compile:
+      make pbproxy
+
+
+It operates in two different modes:
+a) server:
+In server mode, we listen to incoming connections on a command line specified port number. The server accepts all incoming connections to a protected service, say ssh. It then decrypts all incoming packets and conveys the packet to the server. This way, the actual service only ever gets properly decrypted packets. Also, each new connection is forked as it comes.
+
+b) Client Mode:
+In client mode, the program which actually wants to connect to the server uses pbproxy as its proxy. pbproxy, on client side opens a socket with the pbproxy server and encrypts all outgoing packets. SImilarly, it also decrypts all incoming packets and sends them to the program. 
+
+
+Encryption and Decryption:
+I have used AES_ctr128_encrypt for encryption and decryption. The IVs are the first message exchanged between the pbproxy client and server so that future communication can continue. The IV is 16 bytes in size. IV and key are used to encrypt and decrypt messages.
+

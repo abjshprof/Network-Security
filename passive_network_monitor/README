@@ -1,0 +1,115 @@
+CSE508: Network Security, Fall 2017
+Homework 2: Passive Network Monitoring
+
+Abhishek Joshi
+111331268
+-----------
+
+	1. Description:
+
+This is a passive network monitoring tool built on top of libpcap library.
+Provided functions:
+a. raw packet capture on an ethernet device until Ctrl-C is pressed.
+b. specify BPF filter (as per libpcap syntax, See: http://www.tcpdump.org/manpages/pcap-filter.7.html)
+   to filter packets matching BPF expression
+c. offline reading from a .pcap file
+d. Filter packets containing a specified string
+
+
+
+
+	2. Compiling:
+
+ - make clean all
+this also prints a useful help message.
+
+
+
+
+	3. Running:
+
+Usage:
+    ./mydump [-i <eth_interface>] [-s <str>] [-r <filename>]  ["bpf_expression"]
+
+Parameters:
+
+  - eth_interface: ethernet interface on which to sniff packets on, if no 
+    parameter/nothing is provided, we try to open a default interface
+
+  - filename: file from which to read offline data
+
+  - str: string to search in offline file or packets captured on the interface 
+    specified with -i. If no parameter/nothing is provided, it is interpreted as a NULL 
+    string and it matches everything
+
+  - bpf_expression: BPF expression to filter packets(See b in Description above)
+
+
+***NOTE****: 1. Please specify the bpf expression at the end. The other options can be juggled.
+	     2. All options are optional
+
+
+
+
+
+	4. Sample Outputs:
+
+a.
+>>ping www.google.com
+./mydump -i ens33
+
+
+Sniffing on ens33
+
+===============================
+
+2017-10-13 19:15:32.874330 00:0c:29:77:43: -> 00:50:56:fa:a1: type IPv4 len 74
+192.168.21.182.30149 -> 192.168.21.2.53 UDP
+K............www.google.com.....
+
+2017-10-13 19:15:32.881153 00:50:56:fa:a1: -> 00:0c:29:77:43: type IPv4 len 90
+192.168.21.2.53 -> 192.168.21.182.30149 UDP
+K............www.google.com.....................
+
+
+
+
+b.
+>> wget http://www3.cs.stonybrook.edu/~mikepo/CSE508/2017/hw/CSE508_2017_hw1.txt 
+sudo ./mydump -i ens33 tcp
+
+
+2017-10-13 19:26:20.792045 00:0c:29:77:43: -> 00:50:56:fa:a1: type IPv4 len 74
+192.168.21.182.50442 -> 130.245.27.3.80 TCP
+
+........
+
+2017-10-13 19:26:20.798798 00:0c:29:77:43: -> 00:50:56:fa:a1: type IPv4 len 245
+192.168.21.182.50442 -> 130.245.27.3.80 TCP
+GET /~mikepo/CSE508/2017/hw/CSE508_2017_hw1.txt HTTP/1.1..User-Agent: Wget/1.17.1 (linux-gnu)..Accept: */*..Accept-Encoding: identity..Host: www3.cs.stonybrook.edu..Connection: Keep-Alive....
+
+2017-10-13 19:26:20.799163 00:50:56:fa:a1: -> 00:0c:29:77:43: type IPv4 len 60
+130.245.27.3.80 -> 192.168.21.182.50442 TCP
+......
+
+2017-10-13 19:26:20.803834 00:50:56:fa:a1: -> 00:0c:29:77:43: type IPv4 len 2826
+130.245.27.3.80 -> 192.168.21.182.50442 TCP
+HTTP/1.1 200 OK..Date: Sat, 14 Oct 2017 02:26:20 GMT..Server: Apache..Last-Modified: Sat, 09 Sep 2017 04:13:05 GMT..ETag: "106806a-abe-558b9e9027640"..Accept-Ranges: bytes..Content-Length: 2750..Keep-Alive: timeout=15, max=500..Connection: Keep-Alive..Content-Type: text/plain....CSE508: Network Security, Fall 2017..Homework 1: Passive Network Monitoring.-------------------------------------------------------------------------------..Submission deadline: 9/22/2017 11:59pm EDT.
+............
+
+
+
+
+c.
+>> wget http://www3.cs.stonybrook.edu/~mikepo/CSE508/2017/hw/CSE508_2017_hw1.txt
+sudo ./mydump -i ens33 -s CSE508 tcp
+
+
+2017-10-13 19:30:11.714548 00:0c:29:77:43: -> 00:50:56:fa:a1: type IPv4 len 245
+192.168.21.182.50446 -> 130.245.27.3.80 TCP
+GET /~mikepo/CSE508/2017/hw/CSE508_2017_hw1.txt HTTP/1.1..User-Agent: Wget/1.17.1 (linux-gnu)..Accept: */*..Accept-Encoding: identity..Host: www3.cs.stonybrook.edu..Connection: Keep-Alive....
+
+2017-10-13 19:30:11.720572 00:50:56:fa:a1: -> 00:0c:29:77:43: type IPv4 len 1440
+130.245.27.3.80 -> 192.168.21.182.50446 TCP
+HTTP/1.1 200 OK..Date: Sat, 14 Oct 2017 02:30:11 GMT..Server: Apache..Last-Modified: Sat, 09 Sep 2017 04:13:05 GMT..ETag: "106806a-abe-558b9e9027640"..Accept-Ranges: bytes..Content-Length: 2750..Keep-Alive: timeout=15, max=500..Connection: Keep-Alive..Content-Type: text/plain....CSE508: Network Security, Fall 2017..Homework 1: Passive Network Monitoring.-------------------------------------------------------------------------------..Submission deadline: 9/22/2017 11:59pm EDT.Submission through https://blackboard.stonybrook.edu..In this assignment you will get familiar with passive network traffic.monitoring and analysis. Tcpdump is probably the most popular and widely used.passive network monitoring tool. It is built on top of the Libpcap packet.capture library and can capture and display packet headers and payloads either.from a network interface or a network trace file. Your task is to analyze.a network trace file and answer various questions....0. Preparation..Download the hw1.pcap trace file from the "Resources" page of Piazza...Use the following command to read the trace file: .tcpdump -n -r hw1.pcap | head..-n skips the DNS resolution of IP addresses (faster)..The output is redirected to 'head' to avoid flooding the console - this is.a good strategy while assembling your commands. Alternatively, you can use.more(1) to scroll through the output, or you can re
+
